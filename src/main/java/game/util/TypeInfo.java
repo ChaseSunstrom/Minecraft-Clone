@@ -11,6 +11,10 @@ public class TypeInfo {
         return m_Type.isInstance(obj);
     }
 
+    public Class<?> getType() {
+        return m_Type;
+    }
+
     public void display() {
         System.out.println("Type: " + m_Type.getName());
     }

@@ -42,8 +42,8 @@ public class ComponentManager {
     }
 
     public void destroyEntityComponents(Entity entity) {
-        for (ComponentArray componentArray : m_ComponentArrays.values()) {
-            componentArray.removeComponent(entity, null);
+        for (var componentArray : m_ComponentArrays.entrySet()) {
+            componentArray.getValue().removeComponent(entity, componentArray.getKey().getType());
         }
     }
 }

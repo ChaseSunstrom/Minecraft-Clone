@@ -188,7 +188,13 @@ public class ThreadPool {
     }
 
     public enum TaskPriority {
-        CRITICAL, VERY_HIGH, HIGH, NORMAL, LOW, VERY_LOW, BACKGROUND
+        CRITICAL,
+        VERY_HIGH,
+        HIGH,
+        NORMAL,
+        LOW,
+        VERY_LOW,
+        BACKGROUND
     }
 
     private static class PriorityTask implements Runnable, Comparable<PriorityTask> {

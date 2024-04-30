@@ -1,6 +1,5 @@
 package game.ecs;
 
-import game.ecs.component.Component;
 import game.ecs.entity.Entity;
 import game.ecs.entity.EntityManager;
 import game.ecs.component.ComponentManager;
