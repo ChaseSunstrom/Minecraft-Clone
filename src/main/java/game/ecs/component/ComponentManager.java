@@ -3,6 +3,7 @@ package game.ecs.component;
 import game.ecs.entity.Entity;
 import game.util.TypeInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ComponentManager {
@@ -45,5 +46,19 @@ public class ComponentManager {
         for (var componentArray : m_ComponentArrays.entrySet()) {
             componentArray.getValue().removeComponent(entity, componentArray.getKey().getType());
         }
+    }
+
+    public ArrayList<Object> getComponents(Entity entity) {
+        ArrayList<Object> components = new ArrayList<>();
+        for (var componentArray : m_ComponentArrays.entrySet()) {
+            components.add(componentArray.getValue().getComponent(entity));
+        }
+        return components;
+    }
+
+    public boolean hasComponent(Class<?> componentType, Entity e) {
+        TypeInfo typeInfo = new TypeInfo(componentType.getClass());
+        ComponentArray<Transform> componentArray = m_ComponentArrays.get(typeInfo);
+        return componentArray.hasComponent(e);
     }
 }

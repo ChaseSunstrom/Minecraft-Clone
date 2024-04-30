@@ -1,5 +1,9 @@
 package game;
 
+import game.ecs.ECS;
+import game.ecs.component.MaterialManager;
+import game.ecs.component.MeshManager;
+import game.window.Camera;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -10,7 +14,14 @@ import game.window.Window;
 
 public class Game {
 
-    private Window m_Window = new Window("Minecraft Clone", 1280, 720);
+    public static final Camera m_Camera = new Camera(45.0f, 1280.0f / 720.0f, 0.1f, 1000.0f);
+    public static final Window m_Window = new Window("Minecraft Clone", 1280, 720);
+
+    public static final ECS m_ECS = new ECS();
+    public static final MeshManager m_MeshManager = new MeshManager();
+    public static final MaterialManager m_MaterialManager = new MaterialManager();
+
+
 
     public void run() {
         System.out.println("Build Finished!");
@@ -42,16 +53,8 @@ public class Game {
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
 
-        long glfwWindow = m_Window.getGlfwWindow();
-
-        while (!glfwWindowShouldClose(glfwWindow)) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            glfwSwapBuffers(glfwWindow); // swap the color buffers
-
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
+        while (!m_Window.shouldClose()) {
+            m_Window.onUpdate();
         }
     }
 }

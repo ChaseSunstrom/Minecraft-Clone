@@ -24,4 +24,8 @@ public class ComponentArray<ComponentType> {
     public ComponentType getComponent(Entity entity) {
         return m_Components.get(entity.getID());
     }
+
+    public boolean hasComponent(Entity e) {
+        return m_Components.get(e.getID()) != null;
+    }
 }

@@ -1,49 +1,59 @@
 import game.*;
+import game.ecs.component.Components;
+import game.ecs.component.MaterialManager;
+import game.ecs.component.MeshManager;
 import game.events.Event;
 import game.events.EventSubscription;
 import game.events.SubscriptionTopic;
 import game.util.*;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 class Main {
     public static void main(String[] args) {
-        // Initialize the thread pool with a certain number of threads, e.g., 4
+
         ThreadPool.initialize(10);
 
-        ArrayList<Future<String>> taskFutures = new ArrayList<>();
+        EventSubscription.Subscription.create(SubscriptionTopic.WINDOW_EVENT_TOPIC, Main::onEvent);
 
-        // Loop to enqueue the task 10 times
-        for (int i = 0; i < 100; i++) {
-            int taskNumber = i + 1;  // Task number for identification in output
-            Future<String> task = ThreadPool.enqueue(
-                    ThreadPool.TaskPriority.NORMAL,
-                    false,
-                    () -> {
-                        System.out.println("Executing Task " + taskNumber);
-                        Thread.sleep(1000);  // Simulate some work by sleeping for 1 second
-                        return "Task " + taskNumber + " Completed";
-                    }
-            );
-            taskFutures.add(task);  // Store the Future to retrieve results later
-        }
+        Game game = new Game();
 
-        // Retrieve and print the results of all tasks
-        taskFutures.forEach(future -> {
-            try {
-                System.out.println(future.get());  // Wait for each task to complete and print its result
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        });
+        setupMesh();
+        setupMaterial();
+        //createEntity();
+
+        game.run();
 
         // Shut down the thread pool to clean up resources
         ThreadPool.shutdown();
     }
 
-    public static void OnEvent(Event event) {
-        System.out.println(event.toString());
+    public static void setupMesh() {
+        MeshManager meshManager = Game.m_MeshManager;
+
+        ArrayList<MathData.Vertex> vertices = new ArrayList<>();
+
+        vertices.add(new MathData.Vertex(new MathData.Vec3(-0.5f, -0.5f, 0.0f), new MathData.Vec3(0.0f, 0.0f, 1.0f), new MathData.Vec2(0.0f, 0.0f)));
+        vertices.add(new MathData.Vertex(new MathData.Vec3(0.5f, -0.5f, 0.0f), new MathData.Vec3(0.0f, 0.0f, 1.0f), new MathData.Vec2(1.0f, 0.0f)));
+        vertices.add(new MathData.Vertex(new MathData.Vec3(0.5f, 0.5f, 0.0f), new MathData.Vec3(0.0f, 0.0f, 1.0f), new MathData.Vec2(1.0f, 1.0f)));
+        vertices.add(new MathData.Vertex(new MathData.Vec3(-0.5f, 0.5f, 0.0f), new MathData.Vec3(0.0f, 0.0f, 1.0f), new MathData.Vec2(0.0f, 1.0f)));
+
+        meshManager.createMesh("cube", vertices);
+    }
+
+    public static void setupMaterial() {
+        MaterialManager materialManager = Game.m_MaterialManager;
+        materialManager.createMaterial("default", "shaders/default_vert.vert", "shaders/default_frag.frag");
+    }
+
+    public static void createEntity() {
+        Game.m_ECS.createEntity(
+                new Components.MeshComponent("cube"),
+                new Components.MaterialComponent("default"),
+                new Components.TransformComponent(new MathData.Vec3(0.0f, 0.0f, 0.0f), new MathData.Vec3(0.0f, 0.0f, 0.0f), new MathData.Vec3(1.0f, 1.0f, 1.0f)));
+    }
+
+    public static void onEvent(Event event) {
+        System.out.println(event.getType().toString());
     }
 }

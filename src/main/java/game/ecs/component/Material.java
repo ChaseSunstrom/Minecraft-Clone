@@ -12,66 +12,74 @@ public class Material {
     private final String m_Texture;
     private final Shader m_Shader;
 
-    private Material(Builder builder) {
-        m_Color = builder.color;
-        m_Diffuse = builder.diffuse;
-        m_Specular = builder.specular;
-        m_Ambient = builder.ambient;
-        m_Shininess = builder.shininess;
-        m_Texture = builder.texture;
-        m_Shader = builder.shader;
+    public Material() {
+        m_Color = new MathData.Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        m_Diffuse = 0;
+        m_Specular = 0;
+        m_Ambient = 0;
+        m_Shininess = 0.0f;
+        m_Texture = "";
+        m_Shader = null;
     }
 
-    public static class Builder {
-        private MathData.Vec4 color = new MathData.Vec4(1.0f, 1.0f, 1.0f, 1.0f); // Default color
-        private int diffuse = 0;
-        private int specular = 0;
-        private int ambient = 0;
-        private float shininess = 0.0f;
-        private String texture = "";
-        private Shader shader = new Shader("shaders/default.vert", "shaders/default.frag");
+    public Material(String name, Shader shader) {
+        m_Color = new MathData.Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        m_Diffuse = 0;
+        m_Specular = 0;
+        m_Ambient = 0;
+        m_Shininess = 0.0f;
+        m_Texture = "";
+        m_Shader = shader;
+    }
 
-        public Builder() throws Exception {
-        }
+    public Material(String name, Shader shader, String texture) {
+        m_Color = new MathData.Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        m_Diffuse = 0;
+        m_Specular = 0;
+        m_Ambient = 0;
+        m_Shininess = 0.0f;
+        m_Texture = texture;
+        m_Shader = shader;
+    }
 
-        public Builder color(MathData.Vec4 color) {
-            this.color = color;
-            return this;
-        }
+    public Material(MathData.Vec4 color, int diffuse, int specular, int ambient, float shininess, Shader shader) {
+        m_Color = color;
+        m_Diffuse = diffuse;
+        m_Specular = specular;
+        m_Ambient = ambient;
+        m_Shininess = shininess;
+        m_Texture = "";
+        m_Shader = shader;
+    }
 
-        public Builder diffuse(int diffuse) {
-            this.diffuse = diffuse;
-            return this;
-        }
+    public Material(MathData.Vec4 color, int diffuse, int specular, int ambient, float shininess, String texture) {
+        m_Color = color;
+        m_Diffuse = diffuse;
+        m_Specular = specular;
+        m_Ambient = ambient;
+        m_Shininess = shininess;
+        m_Texture = texture;
+        m_Shader = null;
+    }
 
-        public Builder specular(int specular) {
-            this.specular = specular;
-            return this;
-        }
+    public Material(MathData.Vec4 color, int diffuse, int specular, int ambient, float shininess) {
+        m_Color = color;
+        m_Diffuse = diffuse;
+        m_Specular = specular;
+        m_Ambient = ambient;
+        m_Shininess = shininess;
+        m_Texture = "";
+        m_Shader = null;
+    }
 
-        public Builder ambient(int ambient) {
-            this.ambient = ambient;
-            return this;
-        }
-
-        public Builder shininess(float shininess) {
-            this.shininess = shininess;
-            return this;
-        }
-
-        public Builder texture(String texture) {
-            this.texture = texture;
-            return this;
-        }
-
-        public Builder shader(Shader shader) {
-            this.shader = shader;
-            return this;
-        }
-
-        public Material build() {
-            return new Material(this);
-        }
+    public Material(MathData.Vec4 color, int diffuse, int specular, int ambient, float shininess, String texture, Shader shader) {
+        m_Color = color;
+        m_Diffuse = diffuse;
+        m_Specular = specular;
+        m_Ambient = ambient;
+        m_Shininess = shininess;
+        m_Texture = texture;
+        m_Shader = shader;
     }
 
     public MathData.Vec4 getColor() {

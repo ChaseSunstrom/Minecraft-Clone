@@ -53,4 +53,12 @@ public class Shader {
             GL20.glDeleteProgram(m_ProgramID);
         }
     }
+
+    public int getUniformLocation(String name) {
+        return GL20.glGetUniformLocation(m_ProgramID, name);
+    }
+
+    public int getProgramID() {
+        return m_ProgramID;
+    }
 }

@@ -7,6 +7,8 @@ public class MathData {
         public float m_X;
         public float m_Y;
 
+        public static final int SIZE = 2 * Float.BYTES;
+
         public Vec2() {
             m_X = 0;
             m_Y = 0;
@@ -51,11 +53,13 @@ public class MathData {
 
     }
 
-    public class Vec3 {
+    public static class Vec3 {
 
         public float m_X;
         public float m_Y;
         public float m_Z;
+
+        public static final int SIZE = 3 * Float.BYTES;
 
         public Vec3() {
             m_X = 0;
@@ -160,9 +164,12 @@ public class MathData {
             return "(" + m_X + ", " + m_Y + ", " + m_Z + ", " + m_W + ")";
         }
 
+        public float[] getArray() {
+            return new float[]{m_X, m_Y, m_Z, m_W};
+        }
     }
 
-    public class Mat4 {
+    public static class Mat4 {
 
         public Vec4[] m_Elements;
 
@@ -182,6 +189,19 @@ public class MathData {
             for (int i = 0; i < 4; i++) {
                 m_Elements[i] = new Vec4(elements[i][0], elements[i][1], elements[i][2], elements[i][3]);
             }
+        }
+
+        public static Mat4 perspective(float fov, float aspectRatio, float near, float far) {
+            Mat4 result = new Mat4();
+            float q = 1.0f / (float) Math.tan(Math.toRadians(0.5f * fov));
+            float a = q / aspectRatio;
+            float b = (near + far) / (near - far);
+            float c = (2.0f * near * far) / (near - far);
+            result.m_Elements[0] = new Vec4(a, 0, 0, 0);
+            result.m_Elements[1] = new Vec4(0, q, 0, 0);
+            result.m_Elements[2] = new Vec4(0, 0, b, -1);
+            result.m_Elements[3] = new Vec4(0, 0, c, 0);
+            return result;
         }
 
         public Mat4 add(Mat4 other) {
@@ -303,20 +323,87 @@ public class MathData {
             return a * (e * i - f * h) + b * (f * g - d * i) + c * (d * h - e * g);
         }
 
+        public void translate(Vec3 position) {
+            m_Elements[3].m_X += position.m_X;
+            m_Elements[3].m_Y += position.m_Y;
+            m_Elements[3].m_Z += position.m_Z;
+        }
+
+        public void rotate(Vec3 rotation) {
+            Mat4 rotationMatrix = new Mat4();
+            rotationMatrix.rotateX(rotation.m_X);
+            rotationMatrix.rotateY(rotation.m_Y);
+            rotationMatrix.rotateZ(rotation.m_Z);
+            m_Elements = rotationMatrix.mul(this).m_Elements;
+        }
+
+        private void rotateX(float mX) {
+            float cos = (float) Math.cos(Math.toRadians(mX));
+            float sin = (float) Math.sin(Math.toRadians(mX));
+            Mat4 rotationMatrix = new Mat4(new float[][]{
+                    {1, 0, 0, 0},
+                    {0, cos, -sin, 0},
+                    {0, sin, cos, 0},
+                    {0, 0, 0, 1}
+            });
+            m_Elements = rotationMatrix.mul(this).m_Elements;
+        }
+
+        private void rotateY(float mY) {
+            float cos = (float) Math.cos(Math.toRadians(mY));
+            float sin = (float) Math.sin(Math.toRadians(mY));
+            Mat4 rotationMatrix = new Mat4(new float[][]{
+                    {cos, 0, sin, 0},
+                    {0, 1, 0, 0},
+                    {-sin, 0, cos, 0},
+                    {0, 0, 0, 1}
+            });
+            m_Elements = rotationMatrix.mul(this).m_Elements;
+        }
+
+        private void rotateZ(float mZ) {
+            float cos = (float) Math.cos(Math.toRadians(mZ));
+            float sin = (float) Math.sin(Math.toRadians(mZ));
+            Mat4 rotationMatrix = new Mat4(new float[][]{
+                    {cos, -sin, 0, 0},
+                    {sin, cos, 0, 0},
+                    {0, 0, 1, 0},
+                    {0, 0, 0, 1}
+            });
+            m_Elements = rotationMatrix.mul(this).m_Elements;
+        }
+
+        public void scale(Vec3 scale) {
+            m_Elements[0].m_X *= scale.m_X;
+            m_Elements[1].m_Y *= scale.m_Y;
+            m_Elements[2].m_Z *= scale.m_Z;
+        }
+
+        public float[] getArray() {
+            float[] array = new float[16];
+            for (int i = 0; i < 4; i++) {
+                array[i * 4] = m_Elements[i].m_X;
+                array[i * 4 + 1] = m_Elements[i].m_Y;
+                array[i * 4 + 2] = m_Elements[i].m_Z;
+                array[i * 4 + 3] = m_Elements[i].m_W;
+            }
+            return array;
+        }
     }
 
-    public class Vertex {
+    public static class Vertex {
 
-        Vec3 m_Position;
-        Vec3 m_Normal;
-        Vec2 m_TexCoords;
+        public Vec3 m_Position;
+        public Vec3 m_Normal;
+        public Vec2 m_TexCoords;
+
+        public static final int SIZE = Vec3.SIZE * 2 + Vec2.SIZE;
 
         public Vertex(Vec3 position, Vec3 normal, Vec2 texCoords) {
             m_Position = position;
             m_Normal = normal;
             m_TexCoords = texCoords;
         }
-
     }
 
 }

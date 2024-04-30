@@ -18,4 +18,42 @@ public class MaterialManager {
         m_Materials.put(name, material);
     }
 
+    public Material createMaterial(String name, String vertexPath, String fragmentPath) {
+        try {
+            m_ShaderManager.createShader(vertexPath, fragmentPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Material material = new Material(name, m_ShaderManager.getShader(vertexPath + fragmentPath));
+        m_Materials.put(name, material);
+        return material;
+    }
+
+    public Material createMaterial(String name, String vertexPath, String fragmentPath, String textureName, String texturePath) {
+        try {
+            m_ShaderManager.createShader(vertexPath, fragmentPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        m_TextureManager.createTexture(textureName, texturePath);
+        Material material = new Material(name, m_ShaderManager.getShader(vertexPath + fragmentPath), textureName);
+        m_Materials.put(name, material);
+        return material;
+    }
+
+    public Material getMaterial(String materialName) {
+        return m_Materials.get(materialName);
+    }
+
+    public void removeMaterial(String name) {
+        m_Materials.remove(name);
+    }
+
+    public TextureManager getTextureManager() {
+        return m_TextureManager;
+    }
+
+    public ShaderManager getShaderManager() {
+        return m_ShaderManager;
+    }
 }

@@ -1,11 +1,15 @@
 package game.ecs;
 
+import game.ecs.component.Transform;
 import game.ecs.entity.Entity;
 import game.ecs.entity.EntityManager;
 import game.ecs.component.ComponentManager;
 import game.ecs.system.SystemManager;
+import game.events.EntityCreatedEvent;
 import game.events.Event;
+import game.events.EventType;
 import game.util.Observer;
+import game.util.ThreadPool;
 
 import java.util.ArrayList;
 
@@ -20,17 +24,31 @@ public class ECS {
         m_EntityManager = new EntityManager();
         m_ComponentManager = new ComponentManager();
         m_SystemManager = new SystemManager();
+        m_Observers = new ArrayList<>();
     }
 
     public Entity createEntity() {
-        return m_EntityManager.createEntity();
+        Entity entity = m_EntityManager.createEntity();
+        ThreadPool.enqueue(ThreadPool.TaskPriority.HIGH, false,
+                () -> {
+                    notifyObservers(new EntityCreatedEvent(entity));
+                    return null;
+                }
+        );
+        return entity;
     }
 
-    public Entity createEntity(ArrayList<Component> components) {
+    public Entity createEntity(Object... components) {
         Entity entity = m_EntityManager.createEntity();
-        for (Component component : components) {
+        for (Object component : components) {
             m_ComponentManager.addComponent(entity, component);
         }
+        ThreadPool.enqueue(ThreadPool.TaskPriority.HIGH, false,
+                () -> {
+                        notifyObservers(new EntityCreatedEvent(entity));
+                        return null;
+                }
+        );
         return entity;
     }
 
@@ -41,7 +59,7 @@ public class ECS {
 
     public void notifyObservers(Event event) {
         for (Observer observer : m_Observers) {
-            observer.onNotify(event);
+            observer.onNotify(this, event);
         }
     }
 
@@ -55,5 +73,13 @@ public class ECS {
 
     public SystemManager getSystemManager() {
         return m_SystemManager;
+    }
+
+    public boolean hasComponent(Class<?> componentType, Entity entity) {
+        return m_ComponentManager.hasComponent(componentType, entity);
+    }
+
+    public <ComponentType> ComponentType getComponent(Class<ComponentType> componentType, Entity entity) {
+        return m_ComponentManager.getComponent(entity, componentType);
     }
 }

@@ -1,6 +1,7 @@
 package game.window;
 
 import game.events.*;
+import game.util.ThreadPool;
 import org.lwjgl.glfw.*;
 
 import java.util.Objects;
@@ -14,9 +15,11 @@ public class Window {
 
     private long m_GlfwWindow;
     private final WindowData m_WindowData;
+    private Renderer m_Renderer;
 
     public Window(String title, int width, int height) {
         m_WindowData = new WindowData(title, width, height, Window::eventCallback);
+        m_Renderer = new Renderer();
         init();
     }
 
@@ -42,34 +45,34 @@ public class Window {
         glfwSetKeyCallback(m_GlfwWindow, new GLFWKeyCallback() {
             @Override
             public void invoke(long l, int i, int i1, int i2, int i3) {
-                keyCallback(l, i, i1, i2, i3);
+                ThreadPool.enqueue(ThreadPool.TaskPriority.VERY_HIGH, false, () -> { keyCallback(l, i, i1, i2, i3); return null; });
             }
         });
 
         glfwSetCursorPosCallback(m_GlfwWindow, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long window, double xpos, double ypos) {
-                cursorPosCallback(window, xpos, ypos);
+                ThreadPool.enqueue(ThreadPool.TaskPriority.VERY_HIGH, false, () -> { cursorPosCallback(window, xpos, ypos); return null; });
             }
         });
 
         glfwSetMouseButtonCallback(m_GlfwWindow, new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long l, int i, int i1, int i2) {
-                mouseButtonCallback(l, i, i1, i2);
+                ThreadPool.enqueue(ThreadPool.TaskPriority.VERY_HIGH, false, () -> { mouseButtonCallback(l, i, i1, i2); return null; });
             }
         });
 
         glfwSetScrollCallback(m_GlfwWindow, new GLFWScrollCallback() {
             @Override
             public void invoke(long l, double v, double v1) {
-                scrollCallback(l, v, v1);
+                ThreadPool.enqueue(ThreadPool.TaskPriority.VERY_HIGH, false, () -> { scrollCallback(l, v, v1); return null; });
             }
         });
         glfwSetFramebufferSizeCallback(m_GlfwWindow, new GLFWFramebufferSizeCallback() {
             @Override
             public void invoke(long l, int i, int i1) {
-                framebufferSizeCallback(l, i, i1);
+                ThreadPool.enqueue(ThreadPool.TaskPriority.VERY_HIGH, false, () -> { framebufferSizeCallback(l, i, i1); return null; });
             }
         });
 
@@ -79,6 +82,18 @@ public class Window {
 
         // Make the window visible
         glfwShowWindow(m_GlfwWindow);
+    }
+
+    public void onUpdate() {
+        glfwSwapBuffers(m_GlfwWindow);
+
+        m_Renderer.render();
+
+        glfwPollEvents();
+    }
+
+    public boolean shouldClose() {
+        return glfwWindowShouldClose(m_GlfwWindow);
     }
 
     public static void terminate() {
